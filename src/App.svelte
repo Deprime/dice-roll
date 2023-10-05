@@ -42,7 +42,7 @@
     const toneMapping = LinearToneMapping;
     const ambientIntensity = 0.5;
     const ambientColor = '#FFFFFF';
-    const directIntensity = 0.8 * Math.PI;
+    const directIntensity = 1.2 * Math.PI;
     const directColor = '#FFFFFF';
 
     const renderer = new WebGLRenderer({ antiAlias: true, alpha: true });
@@ -123,14 +123,14 @@
     });
 </script>
 
-<main class="  flex items-center justify-center h-screen bg-slate-950 ">
+<main class="  flex items-center justify-center h-screen bg-slate-900 ">
   <section class="w-fit mx-auto">
     <h1 class="text-xl font-semibold text-center text-white pb-2">
       Dice roller
     </h1>
 
     <div class="dice-border p-0.5 rounded-md ">
-      <div class="h-fit w-fit mx-auto rounded-md bg-slate-950" id="dice-board" />
+      <div class="h-fit w-fit mx-auto rounded-md bg-gray-900" id="dice-board" />
     </div>
   </section>
 
