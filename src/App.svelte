@@ -104,7 +104,7 @@
         diceBoard.appendChild(renderer.domElement);
 
         //  TODO: define device to choose model size
-        loader.load('/public/glb-models/dice1_512.glb', function (gltf) {
+        loader.load('/glb-models/dice1_512.glb', function (gltf) {
           preloading = false;
           rollAnimation = gltf.animations[0];
           model = gltf.scene;
