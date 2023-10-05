@@ -7,7 +7,6 @@
         LinearToneMapping,
         LoopOnce,
         OrthographicCamera,
-        PerspectiveCamera,
         Scene,
         Vector3,
         WebGLRenderer,
@@ -21,19 +20,21 @@
     let mixer;
     let rollAnimation;
     let preloading = true;
+    let rolling = false;
 
-    const width = window.innerWidth > 700 ? 700 : window.innerWidth; // 400
+    const maxWidth = 700
+    const width = (window.innerWidth > maxWidth) 
+      ? maxWidth - 8
+      : window.innerWidth - 8;
     const height = width; // 400;
     const dimension = 1.1;
 
     let clock = new Clock();
     const scene = new Scene();
     const camera = new OrthographicCamera(-dimension, dimension, dimension, -dimension, 0.1, 400);
-    // camera.lookAt(scene.position);
 
     camera.position.y = 1;
     camera.lookAt(new Vector3(0, 0, 0));
-    // camera.zoom = 0.6;
 
     // Lighting
     // const punctualLights = true;
@@ -67,51 +68,58 @@
 
     // Lifecycle
     const prepareAnimation = () => {
-        mixer = new AnimationMixer(model);
-        const action = mixer.clipAction(rollAnimation).setDuration(9);
-        action.clampWhenFinished = true;
-        action.setLoop(LoopOnce);
-        action.play();
+      const time = 10;
+      rolling = true;
+      mixer = new AnimationMixer(model);
+      const action = mixer.clipAction(rollAnimation).setDuration(10);
+      action.clampWhenFinished = true;
+      action.setLoop(LoopOnce);
+      action.play();
+
+      setTimeout(() => {
+        rolling = false
+      }, (time * 1000) - 500 )
     };
 
     const render = () => {
-        requestAnimationFrame(render);
-        if (mixer) {
-            mixer.update(clock.getDelta());
-        }
-        renderer.render(scene, camera);
+      requestAnimationFrame(render);
+      if (mixer) {
+        mixer.update(clock.getDelta());
+      }
+      renderer.render(scene, camera);
     };
 
-
-
     const onRollDice = () => {
-        prepareAnimation();
-        render();
+      if (rolling) {
+        return;
+      }
+      prepareAnimation();
+      render();
     };
 
     onMount(() => {
-        // renderer.render(scene, camera);
-        const diceBoard = document.getElementById('dice-board');
-        if (diceBoard) {
-          diceBoard.appendChild(renderer.domElement);
+      // renderer.render(scene, camera);
+      const diceBoard = document.getElementById('dice-board');
+      if (diceBoard) {
+        diceBoard.appendChild(renderer.domElement);
 
-          //  TODO: define device to choose model size
-          loader.load('/public/glb-models/dice1_512.glb', function (gltf) {
-            preloading = false;
-            rollAnimation = gltf.animations[0];
-            model = gltf.scene;
-            model.position.set(0, 0, 0.4);
+        //  TODO: define device to choose model size
+        loader.load('/public/glb-models/dice1_512.glb', function (gltf) {
+          preloading = false;
+          rollAnimation = gltf.animations[0];
+          model = gltf.scene;
+          model.position.set(0, 0, 0.4);
 
-            model.traverse(function (object) {
-              if (object.isMesh) {
-                object.castShadow = true; // shadow
-                object.receiveShadow = true; // Accept the shadow of others
-              }
-            });
-            scene.add(model);
-            renderer.render(scene, camera);
+          model.traverse(function (object) {
+            if (object.isMesh) {
+              object.castShadow = true; // shadow
+              object.receiveShadow = true; // Accept the shadow of others
+            }
           });
-        }
+          scene.add(model);
+          renderer.render(scene, camera);
+        });
+      }
     });
 </script>
 
@@ -127,8 +135,8 @@
   </section>
 
   <footer class="fixed inset-x-0  bottom-4 text-center"> 
-    <button on:click={onRollDice} class="px-10 py-2 bg-slate-700 text-white rounded-md">
-      Roll
+    <button on:click={onRollDice} disabled={rolling} class="px-20 md:px-10 py-2 bg-amber-600 disabled:opacity-50 text-white font-semibold rounded-md">
+      {rolling ? "rolling..." : "Roll"}
     </button>
   </footer>
 </main>
@@ -138,5 +146,4 @@
     background: rgb(253,29,29);
     background: linear-gradient(90deg, rgb(207, 179, 18) 6%, rgba(252,176,69,1) 100%);
   }
-
 </style>
