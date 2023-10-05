@@ -123,19 +123,28 @@
     });
 </script>
 
-<main class="  flex items-center justify-center h-screen bg-slate-900 ">
+<main class="flex items-center justify-center h-screen bg-slate-900 pb-20">
   <section class="w-fit mx-auto">
     <h1 class="text-xl font-semibold text-center text-white pb-2">
       Dice roller
     </h1>
 
-    <div class="dice-border p-0.5 rounded-md ">
+    <div class="dice-border p-[1px] rounded-md relative">
+      {#if preloading}
+        <span class="absolute text-white top-[45%] w-full text-center opacity-70 font-medium tracking-widest">
+          preloading...
+        </span>
+      {/if}
       <div class="h-fit w-fit mx-auto rounded-md bg-gray-900" id="dice-board" />
     </div>
   </section>
 
   <footer class="fixed inset-x-0  bottom-4 text-center"> 
-    <button on:click={onRollDice} disabled={rolling} class="px-20 md:px-10 py-2 bg-amber-600 disabled:opacity-50 text-white font-semibold rounded-md">
+    <button   
+      class="px-20 md:px-10 py-2 bg-amber-600 disabled:opacity-50 text-white font-semibold rounded-md"
+      disabled={rolling} 
+      on:click={onRollDice} 
+    >
       {rolling ? "rolling..." : "Roll"}
     </button>
   </footer>
@@ -143,7 +152,7 @@
 
 <style>
   .dice-border {
-    background: rgb(253,29,29);
-    background: linear-gradient(90deg, rgb(207, 179, 18) 6%, rgba(252,176,69,1) 100%);
+    background: #AA771C;
+    background:linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
   }
 </style>
