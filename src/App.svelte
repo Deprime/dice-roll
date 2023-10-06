@@ -173,7 +173,7 @@
                   <div class="hero-actions__nav">
                       <div class="hero-actions__nav_start">
                           <div class="action-nav action-nav_start">
-                            <button class="btn btn-hover --increased --decor --badge js-demo-start">
+                            <button class="btn btn-hover --increased --decor --badge js-demo-start opacity-0">
                               <span class="btn-decor"></span> 
                               <span class="btn-title --up text-grad grad-yellow-down">
                                 Roll the dice
@@ -186,7 +186,9 @@
                                                       <div class="price-label__text__value">77999 GP</div>
                                                   </div>
                                               </div>
-                                          </span></span></span></button></div>
+                                          </span></span></span>
+                          </button>
+                        </div>
                       </div>
                       <div class="hero-actions__nav_win">
                           <div class="action-nav action-nav_win">
