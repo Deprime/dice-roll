@@ -149,7 +149,7 @@
         console.log(model)
 
         const scale = 1.2
-        model.position.set(0, 0, 0.2);
+        model.position.set(0, 0, 0.6);
         model.scale.set(scale, scale, scale);
         model.traverse(function (object) {
           if (object.isMesh) {
