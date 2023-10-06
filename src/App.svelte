@@ -12,11 +12,12 @@
     WebGLRenderer,
   } from 'three';
   import { GLTFLoader } from 'three/addons/loaders/GLTFLoader';
+  import type { GLTF } from 'three/addons/loaders/GLTFLoader';
 
   import { onMount } from 'svelte';
 
   // Data
-  let model;
+  let model: GLTF;
   let mixer;
   let rollAnimation;
   let defaultQuaternion;
@@ -46,7 +47,7 @@
   const ambientIntensity = 0.2;
   const ambientColor = '#FFFFFF';
   // const directIntensity = 1.2 * Math.PI;
-  const directIntensity = 2.2 * Math.PI;
+  const directIntensity = 2.5 * Math.PI;
   const directColor = '#FFFFFF';
 
   const renderer = new WebGLRenderer({ antiAlias: true, alpha: true });
@@ -64,7 +65,7 @@
 
   const light2 = new DirectionalLight(directColor, directIntensity);
   // light2.position.set(1.5, 1, 0.866); // ~60º
-  light2.position.set(1.5, 1.2, -1.5); // ~60º
+  light2.position.set(1.2, 1.2, -1.4); // ~60º
   light2.name = 'main_light';
   camera.add(light2);
   scene.add(light2);
