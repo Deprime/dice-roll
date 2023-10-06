@@ -25,12 +25,12 @@
   let rolling = false;
   let rotation = false;
 
-  const maxWidth = 350;
+  const maxWidth = 370;
   const width = (window.innerWidth > maxWidth) 
     ? maxWidth
     : window.innerWidth
   const height = width;
-  const dimension = 1.2;
+  const dimension = 1.1;
 
   let clock = new Clock();
   const scene = new Scene();
@@ -44,10 +44,10 @@
   const exposure = 0.0;
   const toneMapping = LinearToneMapping;
   // const ambientIntensity = 0.5;
-  const ambientIntensity = 0.8;
+  const ambientIntensity = 0.7;
   const ambientColor = '#FFFFFF';
   // const directIntensity = 1.2 * Math.PI;
-  const directIntensity = 2.0 * Math.PI;
+  const directIntensity = 1.8 * Math.PI;
   const directColor = '#FFFFFF';
 
   const rendererConfig = { 
@@ -77,21 +77,7 @@
   const loader = new GLTFLoader();
 
   // Lifecycle
-  const prepareAnimation = () => {
-    model.position.set(0, 0, 0.4);
-
-    const time = 10.5;
-    rolling = true;
-    mixer = new AnimationMixer(model);
-    const action = mixer.clipAction(rollAnimation).setDuration(time);
-    action.clampWhenFinished = true;
-    action.setLoop(LoopOnce);
-    action.play();
-
-    setTimeout(() => {
-      rolling = false
-    }, (time * 1000) - 500 )
-  };
+ 
 
   const render = () => {
     requestAnimationFrame(render);
@@ -131,6 +117,22 @@
 
     prepareAnimation();
     render();
+  };
+
+  const prepareAnimation = () => {
+    model.position.set(0, 0, 0.4);
+
+    const time = 9.3;
+    rolling = true;
+    mixer = new AnimationMixer(model);
+    const action = mixer.clipAction(rollAnimation).setDuration(time);
+    action.clampWhenFinished = true;
+    action.setLoop(LoopOnce);
+    action.play();
+
+    setTimeout(() => {
+      rolling = false
+    }, (time * 1000) - 500 )
   };
 
   onMount(() => {
