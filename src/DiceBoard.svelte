@@ -25,12 +25,12 @@
   let rolling = false;
   let rotation = false;
 
-  const maxWidth = 370;
+  const maxWidth = 380;
   const width = (window.innerWidth > maxWidth) 
     ? maxWidth
-    : window.innerWidth
+    : window.innerWidth - 32
   const height = width;
-  const dimension = 1.1;
+  const dimension = 1.2;
 
   let clock = new Clock();
   const scene = new Scene();
@@ -113,14 +113,14 @@
     }
     rotation = false;
     model.quaternion.copy(defaultQuaternion);
-    model.position.set(0, 0, 0.4);
+    // model.position.set(0, 0, 0.6);
 
     prepareAnimation();
     render();
   };
 
   const prepareAnimation = () => {
-    model.position.set(0, 0, 0.4);
+    model.position.set(0, 0, 0.6);
 
     const time = 9.3;
     rolling = true;
@@ -146,8 +146,11 @@
         preloading = false;
         rollAnimation = gltf.animations[0];
         model = gltf.scene;
-        model.position.set(0, 0, 0);
-        // model.position.set(0, 0, 0.4);
+        console.log(model)
+
+        const scale = 1.2
+        model.position.set(0, 0, 0.2);
+        model.scale.set(scale, scale, scale);
         model.traverse(function (object) {
           if (object.isMesh) {
             object.castShadow = true; // shadow
@@ -160,7 +163,7 @@
         renderer.render(scene, camera);
 
         rotation = true;
-        onPreview();
+        // onPreview();
       });
     }
   });

@@ -134,7 +134,7 @@
                       <div class="action-random">
                           <div class="action-random__board relative">
                             
-                            <div class="absolute inset-0 flex justify-center items-center">
+                            <div class="absolute inset-0 z-[51] w-full aspect-square sm:aspect-auto">
                               <DiceBoard />
                             </div>
 
