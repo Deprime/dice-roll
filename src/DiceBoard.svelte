@@ -1,8 +1,8 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import {
     AmbientLight,
     AnimationMixer,
-    Group,
     Clock,
     DirectionalLight,
     LinearToneMapping,
@@ -10,7 +10,6 @@
     OrthographicCamera,
     Scene,
     Vector3,
-    Matrix4,
     GridHelper,
     WebGLRenderer,
   } from 'three';
@@ -18,13 +17,13 @@
   import { GLTFLoader } from 'three/addons/loaders/GLTFLoader';
   import type { GLTF } from 'three/addons/loaders/GLTFLoader';
 
-  import { onMount } from 'svelte';
+  import { EDGES } from './constants';
 
   // Data
   let sceneModel: GLTF;
   let mixer;
   let rollAnimation;
-  let defaultQuaternion;
+  let basePosition;
   let preloading = true;
   let rolling = false;
   let rotation = false;
@@ -80,30 +79,6 @@
   camera.add(light2);
   scene.add(light2);
 
-  let basePosition;
-  const edgeSet = {
-    1: {x: 1.1, y: -0.1, z: 0.8},
-    2: {x: -0.8, y: -3, z: 0.2},
-    3: {x: 1, y: 0.3, z: -0.3},
-    4: {x: 4.2, y: 2.9, z: -0.4},
-    5: {x: 2.8, y: 0, z: 1.3},
-    6: {x: -0.65, y: 0.8, z: -3.6},
-    7: {x: -1, y: 3.4, z: -2.9},
-    8: {x: 0, y: 2.5, z: 0.8},
-    9: {x: 2.4, y: 2.4, z: 3},
-    10: {x: 0.1, y: -3.1, z: 1.1},
-    11: {x: 3.8, y: 1.3, z: 0.6},
-    12: {x: 0.18, y: -2.5, z: 0.25},
-    13: {x: 3.9, y: 0.28, z: 0.45},
-    14: {x: 0.2, y: -0, z: 3.2},
-    15: {x: -6.3, y: 3.8, z: -2.9},
-    16: {x: 2.4, y: 3.0, z: 0.9},
-    17: {x: -2.8, y: 4.1, z: -3.8},
-    18: {x: -5.2, y: 5.7, z: -3.5},
-    19: {x: 0, y: 0, z: 0},
-    20: {x: -2, y: 3.2, z: 0.8},
-  }
-
   // Grid
   scene.add(new GridHelper(5, 30));
   const loader = new GLTFLoader();
@@ -121,25 +96,24 @@
   /**
    * on Roll dice click
    */
-  const onRollDice = () => {
+  const onRollDice = (preedge:null|number = null) => {
     if (rolling) {
       return;
     }
     rotation = false;
-    setEdge();
+    setEdge(preedge);
     prepareAnimation();
     render();
   };
 
-  const setEdge = () => {
+  const setEdge = (preedge:null|number = null) => {
     const group = sceneModel.children[0];
     basePosition = !basePosition
       ? group.children[0].quaternion.clone()
       : basePosition;
     group.children[0].quaternion.copy(basePosition);
-    edge = Math.ceil(Math.random() * (20 - 1) + 1);
-    const set  = edgeSet[edge];
-    console.log(edge)
+    edge = preedge ? preedge : Math.ceil(Math.random() * (20 - 1) + 1);
+    const set  = EDGES[edge];
     group.children[0].rotateX(set.x);
     group.children[0].rotateY(set.y);
     group.children[0].rotateZ(set.z);
@@ -147,7 +121,6 @@
 
   const prepareAnimation = () => {
     const time =  9.3;
-    // const time =  1;
     rolling = true;
     mixer = new AnimationMixer(sceneModel);
     const anim = rollAnimation[1];
@@ -159,7 +132,6 @@
   };
 
   onMount(() => {
-    // renderer.render(scene, camera);
     const diceBoard = document.getElementById('dice-board');
     if (diceBoard) {
       diceBoard.appendChild(renderer.domElement);
@@ -186,16 +158,31 @@
 <div class="h-fit w-fit mx-auto" id="dice-board" />
 
 <footer class="absolute top-1/2 inset-x-0 bottom-4 text-center z-40">
-<!-- <footer class="absolute top-[99.6%] inset-x-0 bottom-4 text-center z-40">  -->
-  <button
-    class="primary-button p-0.5 rounded-2xl"
-    disabled={rolling}
-    on:click={onRollDice}
-  >
-    <span class="primary-button-inner inline-block font-semibold w-48 py-2.5 rounded-2xl">
-      {rolling ? `edge ${edge}` : "ROLL THE DICE"}
-    </span>
-  </button>
+  <div class="mb-4">
+    <button
+      class="primary-button p-0.5 rounded-2xl disabled:opacity-60 transition-all"
+      disabled={rolling}
+      on:click={() => onRollDice()}
+    >
+      <span class="primary-button-inner inline-block font-semibold w-48 py-2.5 rounded-2xl">
+        {rolling ? `edge ${edge}` : "ROLL THE DICE"}
+      </span>
+    </button>
+  </div>
+  <div class="flex flex-wrap justify-center gap-1">
+    {#each Object.keys(EDGES) as key}
+      <button
+        class="primary-button p-0.5 rounded-2xl disabled:opacity-60 transition-all"
+        disabled={rolling}
+        on:click={() => onRollDice(key)}
+      >
+        <span class="primary-button-inner inline-block font-semibold w-fit px-4 py-2 rounded-2xl">
+          {key}
+        </span>
+      </button>
+    {/each}
+
+  </div>
 </footer>
 
 <style>
