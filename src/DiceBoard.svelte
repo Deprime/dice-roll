@@ -89,7 +89,7 @@
     if (mixer) {
       const delta = clock.getDelta();
 
-      if (mixer.time >= 3 && !rotation) {
+      if (mixer.time >= 2.7 && !rotation) {
         setEdge();
         console.log('rotate')
         rotation = true;
