@@ -28,8 +28,11 @@
   let rolling = false;
   let rotation = false;
   let edge: number|null = 1;
-  const time = 9.3;
-  const rotate_moment = time * 0.29;
+
+  // Animation and edge rotation timings
+  let moment_percent = 0.28
+  let time = 9.3;
+  const rotate_moment = time * moment_percent;
 
   const maxWidth = 380;
   const width = (window.innerWidth > maxWidth)
@@ -93,7 +96,6 @@
 
       if (mixer.time >= rotate_moment && !rotation) {
         setEdge();
-        console.log('rotate')
         rotation = true;
       }
       mixer.update(delta);
@@ -185,7 +187,7 @@
 
 <div class="h-fit w-fit mx-auto" id="dice-board" />
 
-<footer class="absolute top-1/2 inset-x-0 bottom-4 text-center z-40">
+<footer class="absolute bottom-4 md:bottom-auto md:top-1/2 inset-x-0 w-full px-4 text-center z-40">
   <div class="mb-4">
     <button
       class="primary-button p-0.5 rounded-2xl disabled:opacity-60 transition-all"
@@ -209,7 +211,6 @@
         </span>
       </button>
     {/each}
-
   </div>
 </footer>
 
