@@ -28,6 +28,8 @@
   let rolling = false;
   let rotation = false;
   let edge: number|null = 1;
+  const time = 9.3;
+  const rotate_moment = time * 0.29;
 
   const maxWidth = 380;
   const width = (window.innerWidth > maxWidth)
@@ -89,7 +91,7 @@
     if (mixer) {
       const delta = clock.getDelta();
 
-      if (mixer.time >= 2.7 && !rotation) {
+      if (mixer.time >= rotate_moment && !rotation) {
         setEdge();
         console.log('rotate')
         rotation = true;
@@ -143,7 +145,7 @@
   }
 
   const prepareAnimation = () => {
-    const time =  9.3;
+
     rolling = true;
     mixer = new AnimationMixer(sceneModel);
     const anim = rollAnimation[1];
