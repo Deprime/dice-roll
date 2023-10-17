@@ -17,7 +17,7 @@
   import { GLTFLoader } from 'three/addons/loaders/GLTFLoader';
   import type { GLTF } from 'three/addons/loaders/GLTFLoader';
 
-  import { EDGES } from './constants';
+  import { EDGES, ROLL_POSITION } from './constants';
 
   // Data
   let sceneModel: GLTF;
@@ -27,7 +27,7 @@
   let preloading = true;
   let rolling = false;
   let rotation = false;
-  let edge = 1;
+  let edge: number|null = 1;
 
   const maxWidth = 380;
   const width = (window.innerWidth > maxWidth)
@@ -88,6 +88,11 @@
     requestAnimationFrame(render);
     if (mixer) {
       const delta = clock.getDelta();
+
+      if (mixer.time >= 3.4 && !rotation) {
+        setEdge();
+        rotation = true;
+      }
       mixer.update(delta);
     }
     renderer.render(scene, camera);
@@ -96,24 +101,40 @@
   /**
    * on Roll dice click
    */
-  const onRollDice = (preedge:null|number = null) => {
+  const onRollDice = ($$edge: number|null = null) => {
     if (rolling) {
       return;
     }
     rotation = false;
-    setEdge(preedge);
+    edge = $$edge;
+    setRollPosition();
+    // setEdge();
     prepareAnimation();
     render();
   };
 
-  const setEdge = (preedge:null|number = null) => {
+  /**
+   * Set position for rolling
+   */
+  const setRollPosition = () => {
     const group = sceneModel.children[0];
-    basePosition = !basePosition
-      ? group.children[0].quaternion.clone()
-      : basePosition;
     group.children[0].quaternion.copy(basePosition);
-    edge = preedge ? preedge : Math.ceil(Math.random() * (20 - 1) + 1);
-    const set  = EDGES[edge];
+    console.log('ROLL_POSITION')
+    group.children[0].rotateX(ROLL_POSITION.x);
+    group.children[0].rotateY(ROLL_POSITION.y);
+    group.children[0].rotateZ(ROLL_POSITION.z);
+  }
+
+  /**
+   * Set selected edge
+   */
+  const setEdge = () => {
+    const group = sceneModel.children[0];
+    group.children[0].quaternion.copy(basePosition);
+    edge = edge === null
+      ? Math.ceil(Math.random() * (20 - 1) + 1)
+      : edge;
+    const set = EDGES[edge];
     group.children[0].rotateX(set.x);
     group.children[0].rotateY(set.y);
     group.children[0].rotateZ(set.z);
@@ -141,11 +162,14 @@
         preloading    = false;
         rollAnimation = gltf.animations;
         sceneModel    = gltf.scene;
-        const scale = 1.001;
+        // const scale = 1.001;
 
         sceneModel.position.set(0, 0, 0.6);
         const baseDice = sceneModel.children[1];
         sceneModel.children = [baseDice];
+
+        const group = sceneModel.children[0];
+        basePosition = group.children[0].quaternion.clone();
 
         scene.add(sceneModel);
         renderer.render(scene, camera);
@@ -165,7 +189,7 @@
       on:click={() => onRollDice()}
     >
       <span class="primary-button-inner inline-block font-semibold w-48 py-2.5 rounded-2xl">
-        {rolling ? `edge ${edge}` : "ROLL THE DICE"}
+        {rolling ? `edge ${edge === null ? '...' : edge}` : "ROLL THE DICE"}
       </span>
     </button>
   </div>
@@ -174,7 +198,7 @@
       <button
         class="primary-button p-0.5 rounded-2xl disabled:opacity-60 transition-all"
         disabled={rolling}
-        on:click={() => onRollDice(key)}
+        on:click={() => onRollDice(parseInt(key))}
       >
         <span class="primary-button-inner inline-block font-semibold w-fit px-4 py-2 rounded-2xl">
           {key}

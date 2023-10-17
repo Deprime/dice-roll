@@ -20,3 +20,9 @@ export const EDGES = {
   19: {x: 0, y: 0, z: 0},
   20: {x: -2, y: 3.2, z: 0.8},
 }
+
+export const ROLL_POSITION = {
+  x: 0,
+  y: 0.5,
+  z: 0.4,
+}
