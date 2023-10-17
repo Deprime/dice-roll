@@ -89,8 +89,9 @@
     if (mixer) {
       const delta = clock.getDelta();
 
-      if (mixer.time >= 3.4 && !rotation) {
+      if (mixer.time >= 3 && !rotation) {
         setEdge();
+        console.log('rotate')
         rotation = true;
       }
       mixer.update(delta);
@@ -106,7 +107,8 @@
       return;
     }
     rotation = false;
-    edge = $$edge;
+    edge = $$edge === null ? Math.ceil(Math.random() * (20 - 1) + 1) : $$edge;
+
     setRollPosition();
     // setEdge();
     prepareAnimation();
