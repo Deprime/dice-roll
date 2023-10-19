@@ -29,24 +29,23 @@
   let rotation = false;
   let finished = false;
   let edge: number|null = 1;
+  let meshes = [];
 
   // Animation and edge rotation timings
   let moment_percent = 0.28
   let time = 9.3;
-  // let time = 1;
   const rotate_moment = time * moment_percent;
-
   const maxWidth = 380;
   const width = (window.innerWidth > maxWidth)
     ? maxWidth
     : window.innerWidth - 32
   const height = width;
-  const dimension = 1;
-  // const dimension = 1;
+  // const dimension = 30;
+  const dimension = 1.02;
 
   let clock = new Clock();
   const scene = new Scene();
-  const camera = new OrthographicCamera(-dimension, dimension, dimension, -dimension, 0.01, 900);
+  const camera = new OrthographicCamera(-dimension, dimension, dimension, -dimension, 0.01, 1900);
 
   camera.position.y = 1;
   camera.position.x = 0;
@@ -90,16 +89,8 @@
   scene.add(light2);
 
   // Grid
-  // scene.add(new GridHelper(5, 30));
+  scene.add(new GridHelper(5, 30));
   const loader = new GLTFLoader();
-
-  function bezier(t: number, initial: number, p1: number, p2: number, final: number){
-    return (1 - t) * (1 - t) * (1 - t) * initial
-      + 3 * (1 - t) * (1 - t) * t * p1
-      + 3 * (1 - t) * t * t * p2
-      + t * t * t * final;
-  }
-
 
   // Lifecycle
   const zLim = 0.7
@@ -115,34 +106,36 @@
 
       if (rotation && (sceneModel.position.x < 0.5 || sceneModel.position.z < zLim)) {
       // if (finished && !rolling && (sceneModel.position.x < 0.5 || sceneModel.position.z < zLim)) {
-        console.log('anim')
-        const x = sceneModel.position.x;
-        let inc = x <= 0.1 ? delta : delta;
-        inc = x <= 0.05 ? delta/5 : inc;
-        inc = x > 0.05 &&  x <= 0.1 ? delta/4 : inc;
-        inc = x > 0.1  &&  x <= 0.2 ? delta/3 : inc;
-        inc = x > 0.2  &&  x <= 0.3 ? delta/2.5 : inc;
-        inc = x > 0.3  &&  x <= 0.4 ? delta/3 : inc;
-        inc = x > 0.4 ? delta/4 : inc;
-        let zInc = inc / 5
-
-        sceneModel.position.x = sceneModel.position.x + inc >= 0.5
-          ? sceneModel.position.x = 0.5
-          : sceneModel.position.x += inc;
-
-        sceneModel.position.z = sceneModel.position.z - zInc >= zLim
-          ? sceneModel.position.z = zLim
-          : sceneModel.position.z += zInc;
-
-        if (sceneModel.position.x === 0.5 && sceneModel.position.z === zLim) {
-          console.log(sceneModel.position.x, sceneModel.position.y, sceneModel.position.z)
-          finished = false;
-        }
+        // moveToCenter(delta)
       }
       mixer.update(delta);
     }
     renderer.render(scene, camera);
   };
+
+  const moveToCenter = (delta: number) => {
+    const x = sceneModel.position.x;
+    let inc = x <= 0.1 ? delta : delta;
+    inc = x <= 0.05 ? delta/5 : inc;
+    inc = x > 0.05 &&  x <= 0.1 ? delta/4 : inc;
+    inc = x > 0.1  &&  x <= 0.2 ? delta/3 : inc;
+    inc = x > 0.2  &&  x <= 0.3 ? delta/2.5 : inc;
+    inc = x > 0.3  &&  x <= 0.4 ? delta/3 : inc;
+    inc = x > 0.4 ? delta/4 : inc;
+    let zInc = inc / 5
+
+    sceneModel.position.x = sceneModel.position.x + inc >= 0.5
+      ? sceneModel.position.x = 0.5
+      : sceneModel.position.x += inc;
+
+    sceneModel.position.z = sceneModel.position.z - zInc >= zLim
+      ? sceneModel.position.z = zLim
+      : sceneModel.position.z += zInc;
+
+    if (sceneModel.position.x === 0.5 && sceneModel.position.z === zLim) {
+      finished = false;
+    }
+  }
 
   /**
    * on Roll dice click
@@ -153,11 +146,7 @@
     }
     rotation = false;
     edge = $$edge === null ? Math.ceil(Math.random() * (20 - 1) + 1) : $$edge;
-
-    console.log(sceneModel.position.x, sceneModel.position.y, sceneModel.position.z)
     setRollPosition();
-    console.log(sceneModel.position.x, sceneModel.position.y, sceneModel.position.z)
-
     prepareAnimation();
     render();
   };
@@ -166,11 +155,16 @@
    * Set position for rolling
    */
   const setRollPosition = () => {
-    const group = sceneModel.children[0];
-    group.children[0].quaternion.copy(basePosition);
-    group.children[0].rotateX(ROLL_POSITION.x);
-    group.children[0].rotateY(ROLL_POSITION.y);
-    group.children[0].rotateZ(ROLL_POSITION.z);
+    const group = meshes[2];
+    group.quaternion.copy(basePosition);
+    group.rotateX(ROLL_POSITION.x);
+    group.rotateY(ROLL_POSITION.y);
+    group.rotateZ(ROLL_POSITION.z);
+
+    // group.children[0].quaternion.copy(basePosition);
+    // group.children[0].rotateX(ROLL_POSITION.x);
+    // group.children[0].rotateY(ROLL_POSITION.y);
+    // group.children[0].rotateZ(ROLL_POSITION.z);
 
     sceneModel.position.set(0, 0, 0.6);
   }
@@ -179,21 +173,22 @@
    * Set selected edge
    */
   const setEdge = () => {
-    const group = sceneModel.children[0];
-    group.children[0].quaternion.copy(basePosition);
+    const group = meshes[2];
+    group.quaternion.copy(basePosition);
     edge = edge === null
       ? Math.ceil(Math.random() * (20 - 1) + 1)
       : edge;
     const set = EDGES[edge];
-    group.children[0].rotateX(set.x);
-    group.children[0].rotateY(set.y);
-    group.children[0].rotateZ(set.z);
+
+    group.rotateX(set.x);
+    group.rotateY(set.y);
+    group.rotateZ(set.z);
   }
 
   const prepareAnimation = () => {
     rolling = true;
     mixer = new AnimationMixer(sceneModel);
-    const anim = rollAnimation[1];
+    const anim = rollAnimation[0];
     const action = mixer.clipAction(anim).setDuration(time);
     action.clampWhenFinished = true;
     action.setLoop(LoopOnce);
@@ -210,23 +205,25 @@
       diceBoard.appendChild(renderer.domElement);
 
       //  TODO: define device to choose model size
-      loader.load('/glb-models/dice6.glb', function (gltf) {
+      loader.load('/glb-models/test25scale.glb', function (gltf) {
+      // loader.load('/glb-models/dice6.glb', function (gltf) {
         console.log(gltf);
 
-        preloading    = false;
+        gltf.scene.traverse(function (child) {
+          meshes.push(child)
+        });
+        console.log(meshes)
+
         rollAnimation = gltf.animations;
         sceneModel    = gltf.scene;
-
-        // const scale = 1.001;
+        // sceneModel.position.set(0, 0, 0);
         sceneModel.position.set(0, 0, 0.6);
-
-        const baseDice = sceneModel.children[1];
-        sceneModel.children = [baseDice];
-
-        const group = sceneModel.children[0];
-        basePosition = group.children[0].quaternion.clone();
+        meshes[1].scale.set(0.5, 0.5, 0.5)
+        basePosition = meshes[2].quaternion.clone();
         scene.add(sceneModel);
         renderer.render(scene, camera);
+
+        preloading    = false;
         rotation = true;
       });
     }
