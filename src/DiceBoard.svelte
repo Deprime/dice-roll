@@ -223,7 +223,7 @@
         scene.add(sceneModel);
         renderer.render(scene, camera);
 
-        preloading    = false;
+        preloading = false;
         rotation = true;
       });
     }
@@ -236,7 +236,7 @@
   <div class="mb-4">
     <button
       class="primary-button p-0.5 rounded-2xl disabled:opacity-60 transition-all"
-      disabled={rolling}
+      disabled={rolling || preloading}
       on:click={() => onRollDice()}
     >
       <span class="primary-button-inner inline-block font-semibold w-48 py-2.5 rounded-2xl">
@@ -248,7 +248,7 @@
     {#each Object.keys(EDGES) as key}
       <button
         class="primary-button p-0.5 rounded-2xl disabled:opacity-60 transition-all"
-        disabled={rolling}
+        disabled={rolling || preloading}
         on:click={() => onRollDice(parseInt(key))}
       >
         <span class="primary-button-inner inline-block font-semibold w-fit px-4 py-2 rounded-2xl">
