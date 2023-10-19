@@ -27,11 +27,13 @@
   let preloading = true;
   let rolling = false;
   let rotation = false;
+  let finished = false;
   let edge: number|null = 1;
 
   // Animation and edge rotation timings
   let moment_percent = 0.28
   let time = 9.3;
+  // let time = 1;
   const rotate_moment = time * moment_percent;
 
   const maxWidth = 380;
@@ -40,12 +42,15 @@
     : window.innerWidth - 32
   const height = width;
   const dimension = 1;
+  // const dimension = 1;
 
   let clock = new Clock();
   const scene = new Scene();
   const camera = new OrthographicCamera(-dimension, dimension, dimension, -dimension, 0.01, 900);
 
   camera.position.y = 1;
+  camera.position.x = 0;
+  camera.position.z = 0;
   camera.lookAt(new Vector3(0, 0, 0));
 
   // Lighting
@@ -85,10 +90,19 @@
   scene.add(light2);
 
   // Grid
-  scene.add(new GridHelper(5, 30));
+  // scene.add(new GridHelper(5, 30));
   const loader = new GLTFLoader();
 
+  function bezier(t: number, initial: number, p1: number, p2: number, final: number){
+    return (1 - t) * (1 - t) * (1 - t) * initial
+      + 3 * (1 - t) * (1 - t) * t * p1
+      + 3 * (1 - t) * t * t * p2
+      + t * t * t * final;
+  }
+
+
   // Lifecycle
+  const zLim = 0.7
   const render = () => {
     requestAnimationFrame(render);
     if (mixer) {
@@ -97,6 +111,33 @@
       if (mixer.time >= rotate_moment && !rotation) {
         setEdge();
         rotation = true;
+      }
+
+      if (rotation && (sceneModel.position.x < 0.5 || sceneModel.position.z < zLim)) {
+      // if (finished && !rolling && (sceneModel.position.x < 0.5 || sceneModel.position.z < zLim)) {
+        console.log('anim')
+        const x = sceneModel.position.x;
+        let inc = x <= 0.1 ? delta : delta;
+        inc = x <= 0.05 ? delta/5 : inc;
+        inc = x > 0.05 &&  x <= 0.1 ? delta/4 : inc;
+        inc = x > 0.1  &&  x <= 0.2 ? delta/3 : inc;
+        inc = x > 0.2  &&  x <= 0.3 ? delta/2.5 : inc;
+        inc = x > 0.3  &&  x <= 0.4 ? delta/3 : inc;
+        inc = x > 0.4 ? delta/4 : inc;
+        let zInc = inc / 5
+
+        sceneModel.position.x = sceneModel.position.x + inc >= 0.5
+          ? sceneModel.position.x = 0.5
+          : sceneModel.position.x += inc;
+
+        sceneModel.position.z = sceneModel.position.z - zInc >= zLim
+          ? sceneModel.position.z = zLim
+          : sceneModel.position.z += zInc;
+
+        if (sceneModel.position.x === 0.5 && sceneModel.position.z === zLim) {
+          console.log(sceneModel.position.x, sceneModel.position.y, sceneModel.position.z)
+          finished = false;
+        }
       }
       mixer.update(delta);
     }
@@ -113,8 +154,10 @@
     rotation = false;
     edge = $$edge === null ? Math.ceil(Math.random() * (20 - 1) + 1) : $$edge;
 
+    console.log(sceneModel.position.x, sceneModel.position.y, sceneModel.position.z)
     setRollPosition();
-    // setEdge();
+    console.log(sceneModel.position.x, sceneModel.position.y, sceneModel.position.z)
+
     prepareAnimation();
     render();
   };
@@ -125,10 +168,11 @@
   const setRollPosition = () => {
     const group = sceneModel.children[0];
     group.children[0].quaternion.copy(basePosition);
-    console.log('ROLL_POSITION')
     group.children[0].rotateX(ROLL_POSITION.x);
     group.children[0].rotateY(ROLL_POSITION.y);
     group.children[0].rotateZ(ROLL_POSITION.z);
+
+    sceneModel.position.set(0, 0, 0.6);
   }
 
   /**
@@ -147,7 +191,6 @@
   }
 
   const prepareAnimation = () => {
-
     rolling = true;
     mixer = new AnimationMixer(sceneModel);
     const anim = rollAnimation[1];
@@ -155,7 +198,10 @@
     action.clampWhenFinished = true;
     action.setLoop(LoopOnce);
     action.play();
-    setTimeout(() => {rolling = false}, (time * 1000) - 500);
+    setTimeout(() => {
+      rolling = false,
+      finished = true;
+    }, (time * 1000) - 500);
   };
 
   onMount(() => {
@@ -165,18 +211,20 @@
 
       //  TODO: define device to choose model size
       loader.load('/glb-models/dice6.glb', function (gltf) {
+        console.log(gltf);
+
         preloading    = false;
         rollAnimation = gltf.animations;
         sceneModel    = gltf.scene;
-        // const scale = 1.001;
 
+        // const scale = 1.001;
         sceneModel.position.set(0, 0, 0.6);
+
         const baseDice = sceneModel.children[1];
         sceneModel.children = [baseDice];
 
         const group = sceneModel.children[0];
         basePosition = group.children[0].quaternion.clone();
-
         scene.add(sceneModel);
         renderer.render(scene, camera);
         rotation = true;
