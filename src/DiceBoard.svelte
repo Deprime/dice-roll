@@ -33,8 +33,7 @@
 
   // Animation and edge rotation timings
   let moment_percent = 0.28
-  // let time = 9.3;
-  let time = 4.65;
+  let time = 9.3;
   const rotate_moment = time * moment_percent;
   const maxWidth = 380;
   const width = (window.innerWidth > maxWidth)
