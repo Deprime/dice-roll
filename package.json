@@ -26,6 +26,7 @@
   "dependencies": {
     "@threlte/core": "^6.0.10",
     "@threlte/extras": "^7.1.1",
+    "@types/three": "^0.157.2",
     "three": "^0.157.0"
   }
 }
