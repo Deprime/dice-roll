@@ -218,7 +218,7 @@
     if (diceBoard) {
       diceBoard.appendChild(renderer.domElement);
 
-      loader.load('/glb-models/test26.glb', function (gltf: GLTF) {
+      loader.load('/glb-models/sim2.glb', function (gltf: GLTF) {
         gltf.scene.traverse((child: TSceneChild) => {
           meshes.push(child)
         });
